@@ -10,4 +10,7 @@ import org.springframework.data.mongodb.repository.Query;
 public interface IProductRepository extends MongoRepository<Product, Long> {
     @Query("{ Active: true }")
     List<Product> findCustomByActive();
+
+    @Query("{ ProductId: ?0 }")
+    List<Product> findCustomByProductId(String ProductId);
 }

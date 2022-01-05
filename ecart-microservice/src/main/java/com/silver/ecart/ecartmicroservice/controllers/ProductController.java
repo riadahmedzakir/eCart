@@ -7,6 +7,7 @@ import com.silver.ecart.ecartmicroservice.repositories.IProductRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -23,8 +24,14 @@ public class ProductController {
     }
 
     @GetMapping()
-    public List<Product> getUser(String userId) {
+    public List<Product> getProduct() {
         List<Product> items = _productRepository.findCustomByActive();
+        return items;
+    }
+
+    @GetMapping(value = "/{ProductId}")
+    public List<Product> getProductId(@PathVariable("ProductId") String ProductId) {
+        List<Product> items = _productRepository.findCustomByProductId(ProductId);
         return items;
     }
 }
