@@ -7,12 +7,14 @@ import ProductList from "../Product/ProductList";
 class SideNavigation extends React.Component {
     state = {
         ActiveCategory: 'All',
-        Items: []
+        Items: [],
+        Categories: []
     };
 
 
     componentDidMount() {
         this.getProductList();
+        this.getProductCategoryList();
     }
 
     getProductList = (ProductId) => {
@@ -25,47 +27,45 @@ class SideNavigation extends React.Component {
             });
     }
 
-    handleItemClick = (e, { name }) => {
+    getProductCategoryList = () => {
+        const getUrl = `${process.env.REACT_APP_PRODUCT_CATEGORY_MICROSERVICE}`;
+
+        axios.get(getUrl)
+            .then(res => {
+                const categories = [{
+                    name: 'All',
+                    itemId: 'all'
+                }];
+
+                categories.push(...res.data);
+
+                this.setState({ Categories: categories });
+            });
+    }
+
+    handleItemClick = (e, { name, id }) => {
         this.setState({ ActiveCategory: name });
 
-        // TO-DO: read categories from db
-        switch (name) {
-            case 'Electronics':
-                this.getProductList('4456924f-44b2-497c-86ba-b88be95d8df7');
-                break;
-            default:
-                this.getProductList();
-                break;
-        }
+        if (id && id !== 'all') { this.getProductList(id); }
+        else { this.getProductList(); }
     }
 
     render() {
-        const { ActiveCategory, Items } = this.state;
+        const { ActiveCategory, Items, Categories } = this.state;
 
         return (
             <Grid className="body-container">
                 <Grid.Column width={4}>
                     <Menu fluid vertical tabular>
-                        <Menu.Item
-                            name='All'
-                            active={ActiveCategory === 'All'}
-                            onClick={this.handleItemClick}
-                        />
-                        <Menu.Item
-                            name='Electronics'
-                            active={ActiveCategory === 'Electronics'}
-                            onClick={this.handleItemClick}
-                        />
-                        <Menu.Item
-                            name='Cosmetics'
-                            active={ActiveCategory === 'Cosmetics'}
-                            onClick={this.handleItemClick}
-                        />
-                        <Menu.Item
-                            name='Placeholder'
-                            active={ActiveCategory === 'Placeholder'}
-                            onClick={this.handleItemClick}
-                        />
+                        {Categories.map(item =>
+                            <Menu.Item
+                                name={item.name}
+                                key={item.itemId}
+                                id={item.itemId}
+                                active={ActiveCategory === item.name}
+                                onClick={this.handleItemClick}
+                            />
+                        )}
                     </Menu>
                 </Grid.Column>
 
