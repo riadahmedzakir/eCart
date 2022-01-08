@@ -1,7 +1,7 @@
 import React from "react";
 import axios from 'axios';
 
-import { Menu, Grid, Segment } from "semantic-ui-react";
+import { Menu, Grid } from "semantic-ui-react";
 import ProductList from "../Product/ProductList";
 
 class SideNavigation extends React.Component {
@@ -70,9 +70,7 @@ class SideNavigation extends React.Component {
                 </Grid.Column>
 
                 <Grid.Column stretched width={12}>
-                    <Segment>
-                        <ProductList Items={Items} />
-                    </Segment>
+                    <ProductList Items={Items} />
                 </Grid.Column>
             </Grid>
         )

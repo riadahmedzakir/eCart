@@ -1,5 +1,8 @@
 import React from "react";
 
+import { Card } from 'semantic-ui-react';
+import ProductCard from "./ProductCard";
+
 class ProductList extends React.Component {
     render() {
         const { Items } = this.props;
@@ -9,7 +12,11 @@ class ProductList extends React.Component {
             <React.Fragment>
                 {
                     Items && Items.length ?
-                        <p>Has item</p> :
+                        <Card.Group itemsPerRow={5}>
+                            {Items.map(item =>
+                                <ProductCard Item={item} />
+                            )}
+                        </Card.Group> :
                         <p>No item</p>
                 }
             </React.Fragment>
