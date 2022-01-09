@@ -1,8 +1,14 @@
 import React from "react";
-
+import { connect } from "react-redux";
 import { Card, Grid, Image, Button } from 'semantic-ui-react';
+import { setCart } from './../../actions'
 
 class ProductCard extends React.Component {
+    handleCartAdd = () => {
+        const { Item } = this.props;
+        this.props.setCart(Item);
+    }
+
     render() {
         const { Item } = this.props;
         return (
@@ -32,7 +38,7 @@ class ProductCard extends React.Component {
                 <Card.Content>
                     <Grid centered>
                         <Grid.Row>
-                            <Button color='green'>Add to cart</Button>
+                            <Button color='green' onClick={this.handleCartAdd}>Add to cart</Button>
                         </Grid.Row>
                     </Grid>
                 </Card.Content>
@@ -41,4 +47,4 @@ class ProductCard extends React.Component {
     }
 }
 
-export default ProductCard;
+export default connect(null, { setCart })(ProductCard);

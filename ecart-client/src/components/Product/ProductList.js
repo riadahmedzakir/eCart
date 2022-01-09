@@ -6,8 +6,6 @@ import ProductCard from "./ProductCard";
 class ProductList extends React.Component {
     render() {
         const { Items } = this.props;
-
-        console.log(Items);
         return (
             <React.Fragment>
                 {

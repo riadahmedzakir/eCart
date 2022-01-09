@@ -1,11 +1,10 @@
 import * as actionTypes from './types';
 
-export const setProductList = (productList, loading) => {
+export const setCart = (product) => {
     return {
-        type: actionTypes.SET_PRODUCT_LIST,
+        type: actionTypes.SET_CART_ITEM,
         payload: {
-            productList: productList,
-            loading: loading
+            product: product
         }
     }
 }

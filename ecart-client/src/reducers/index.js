@@ -2,17 +2,17 @@ import { combineReducers } from 'redux';
 import * as actionTypes from '../actions/types';
 
 const initialProductListState = {
-    productList: [],
-    loading: true
+    productList: []
 };
 
 
-const product_list_reducer = (state = initialProductListState, action) => {
+const cart_reducer = (state = initialProductListState, action) => {
     switch (action.type) {
-        case actionTypes.SET_PRODUCT_LIST:
+        case actionTypes.SET_CART_ITEM:
+            const currentList = JSON.parse(JSON.stringify(state.productList));
+            currentList.push(action.payload.product);
             return {
-                product_list: action.payload.productList,
-                loading: false
+                productList: currentList
             };
         default:
             return state;
@@ -20,7 +20,7 @@ const product_list_reducer = (state = initialProductListState, action) => {
 }
 
 const rootReducer = combineReducers({
-    product: product_list_reducer
+    cart: cart_reducer
 });
 
 export default rootReducer;

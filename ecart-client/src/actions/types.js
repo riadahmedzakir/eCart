@@ -1,1 +1,1 @@
-export const SET_PRODUCT_LIST = 'SET_PRODUCT_LIST';
+export const SET_CART_ITEM = 'SET_CART_ITEM';

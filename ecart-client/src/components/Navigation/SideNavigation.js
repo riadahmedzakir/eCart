@@ -1,14 +1,17 @@
 import React from "react";
 import axios from 'axios';
 
-import { Menu, Grid } from "semantic-ui-react";
+import { Menu, Grid, Pagination, Divider } from "semantic-ui-react";
 import ProductList from "../Product/ProductList";
 
 class SideNavigation extends React.Component {
     state = {
         ActiveCategory: 'All',
         Items: [],
-        Categories: []
+        TotalPages: 0,
+        ActivePage: 1,
+        Categories: [],
+        SelectedProduct: 'all'
     };
 
 
@@ -17,13 +20,16 @@ class SideNavigation extends React.Component {
         this.getProductCategoryList();
     }
 
-    getProductList = (ProductId) => {
-        const getUrl = (ProductId) ? `${process.env.REACT_APP_PRODUCT_MICROSERVICE}/${ProductId}` : process.env.REACT_APP_PRODUCT_MICROSERVICE
+    getProductList = (ProductId, PageNumber) => {
+        const getUrl = (ProductId) ?
+            `${process.env.REACT_APP_PRODUCT_MICROSERVICE}/${PageNumber ? PageNumber : 0}/${ProductId}` :
+            `${process.env.REACT_APP_PRODUCT_MICROSERVICE}/${PageNumber ? PageNumber : 0}`
 
         axios.get(getUrl)
             .then(res => {
-                const items = res.data;
-                this.setState({ Items: items });
+                const items = res.data.data;
+                const totalPages = Math.ceil(res.data.totalRecord / 10);
+                this.setState({ Items: items, TotalPages: totalPages });
             });
     }
 
@@ -43,15 +49,23 @@ class SideNavigation extends React.Component {
             });
     }
 
-    handleItemClick = (e, { name, id }) => {
-        this.setState({ ActiveCategory: name });
+    handleCategoryClick = (e, { name, id }) => {
+        this.setState({ ActiveCategory: name, ActivePage: 1, SelectedProduct: id });
 
         if (id && id !== 'all') { this.getProductList(id); }
         else { this.getProductList(); }
     }
 
+    handlePageChange = (e, data) => {
+        const { SelectedProduct } = this.state;
+        const ProductId = SelectedProduct !== "all" ? SelectedProduct : undefined;
+        const page = data.activePage - 1;
+        this.setState({ ActivePage: data.activePage });
+        this.getProductList(ProductId, page);
+    }
+
     render() {
-        const { ActiveCategory, Items, Categories } = this.state;
+        const { ActiveCategory, Items, Categories, TotalPages, ActivePage, SelectedProduct } = this.state;
 
         return (
             <Grid className="body-container">
@@ -62,8 +76,10 @@ class SideNavigation extends React.Component {
                                 name={item.name}
                                 key={item.itemId}
                                 id={item.itemId}
+                                disabled={item.itemId === SelectedProduct}
+                                color="green"
                                 active={ActiveCategory === item.name}
-                                onClick={this.handleItemClick}
+                                onClick={this.handleCategoryClick}
                             />
                         )}
                     </Menu>
@@ -71,6 +87,12 @@ class SideNavigation extends React.Component {
 
                 <Grid.Column stretched width={12}>
                     <ProductList Items={Items} />
+                    <Divider horizontal></Divider>
+                    <Grid centered>
+                        <Grid.Row ce>
+                            <Pagination activePage={ActivePage} pointing secondary totalPages={TotalPages} onPageChange={this.handlePageChange} />
+                        </Grid.Row>
+                    </Grid>
                 </Grid.Column>
             </Grid>
         )
