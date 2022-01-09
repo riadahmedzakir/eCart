@@ -12,8 +12,8 @@ public interface IProductRepository extends MongoRepository<Product, Long> {
     @Query("{ Active: true }")
     List<Product> findCustomByActive(Pageable pageable);
 
-    @Query("{ ProductId: ?0 }")
-    List<Product> findCustomByProductId(String ProductId);
+    @Query("{ ProductId: ?0, Active: true }")
+    List<Product> findCustomByProductId(String ProductId, Pageable pageable);
 
     @Query(value = "{ ProductId : ?0, Active: true }", count = true)
     int countByProductId(String ProductId);

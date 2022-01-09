@@ -39,7 +39,7 @@ public class ProductController {
 
     @GetMapping(value = "/{Page}/{ProductId}")
     public ProductResponse getProductId(@PathVariable("ProductId") String ProductId, @PathVariable int Page) {
-        List<Product> items = _productRepository.findCustomByProductId(ProductId);
+        List<Product> items = _productRepository.findCustomByProductId(ProductId, PageRequest.of(Page, 10));
         int totalRecord = (int) _productRepository.countByProductId(ProductId);
 
         ProductResponse response = new ProductResponse();
