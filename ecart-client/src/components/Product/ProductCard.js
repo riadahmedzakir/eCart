@@ -1,12 +1,28 @@
 import React from "react";
 import { connect } from "react-redux";
+import axios from 'axios';
 import { Card, Grid, Image, Button } from 'semantic-ui-react';
 import { setCart } from './../../actions'
 
 class ProductCard extends React.Component {
     handleCartAdd = () => {
-        const { Item } = this.props;
+        const { Item, cart } = this.props;
+        const newCart = JSON.parse(JSON.stringify(cart));
+        newCart.push(Item);
+        const cartModel = {
+            id: localStorage.getItem("user_session_id"),
+            productList: newCart
+        }
+
+        this.saveCartItem(cartModel);
         this.props.setCart(Item);
+    }
+
+    saveCartItem = (cartModel) => {
+        const url = `${process.env.REACT_APP_CART_MICROSERVICE}/add`;
+
+        axios.post(url, cartModel)
+            .then(res => { });
     }
 
     render() {
@@ -47,4 +63,8 @@ class ProductCard extends React.Component {
     }
 }
 
-export default connect(null, { setCart })(ProductCard);
+const mapStateToProps = (state) => ({
+    cart: state.cart.productList
+});
+
+export default connect(mapStateToProps, { setCart })(ProductCard);

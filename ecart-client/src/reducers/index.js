@@ -14,6 +14,10 @@ const cart_reducer = (state = initialProductListState, action) => {
             return {
                 productList: currentList
             };
+        case actionTypes.SET_WHOLE_CART:
+            return {
+                productList: action.payload.product
+            };
         default:
             return state;
     }

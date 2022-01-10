@@ -1,7 +1,9 @@
 import React from "react";
 import { connect } from 'react-redux';
 import { v4 as uuidv4 } from 'uuid';
+import axios from 'axios';
 import { Button, Menu, Search } from "semantic-ui-react";
+import { setWholeCart } from './../../actions'
 
 class Navigation extends React.Component {
     countTotal = (list) => {
@@ -14,8 +16,19 @@ class Navigation extends React.Component {
         if (!userSessionId) { localStorage.setItem("user_session_id", uuidv4()) }
     }
 
-    componentDidMount() { 
+    getCartItems = () => {
+        const url = `${process.env.REACT_APP_CART_MICROSERVICE}/get/${localStorage.getItem("user_session_id")}`;
+
+        axios.get(url)
+            .then(res => {
+                const cart = (res && res.data && res.data.productList.length) ? res.data.productList : []
+                this.props.setWholeCart(cart);
+            });
+    }
+
+    componentDidMount() {
         this.setUserIdentity();
+        this.getCartItems();
     }
 
     render() {
@@ -48,4 +61,4 @@ const mapStateToProps = (state) => ({
     cart: state.cart.productList
 });
 
-export default connect(mapStateToProps)(Navigation);
+export default connect(mapStateToProps, { setWholeCart })(Navigation);

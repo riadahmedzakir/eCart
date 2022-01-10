@@ -8,3 +8,12 @@ export const setCart = (product) => {
         }
     }
 }
+
+export const setWholeCart = (cart) => {
+    return {
+        type: actionTypes.SET_WHOLE_CART,
+        payload: {
+            product: cart
+        }
+    }
+}
