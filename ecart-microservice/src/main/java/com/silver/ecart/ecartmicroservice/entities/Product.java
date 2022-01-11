@@ -13,7 +13,7 @@ import lombok.Data;
 @Document(collection = "Products")
 public @Data class Product {
     @Id
-    private String ItemId;
+    private String itemId;
     private String Name;
     private String Description;
     private BigDecimal UnitPrice;

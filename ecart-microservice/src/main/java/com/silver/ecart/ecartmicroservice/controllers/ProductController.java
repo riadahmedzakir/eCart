@@ -3,7 +3,7 @@ package com.silver.ecart.ecartmicroservice.controllers;
 import java.util.List;
 
 import com.silver.ecart.ecartmicroservice.entities.Product;
-import com.silver.ecart.ecartmicroservice.models.ProductResponse;
+import com.silver.ecart.ecartmicroservice.models.Product.ProductResponse;
 import com.silver.ecart.ecartmicroservice.repositories.IProductRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +25,7 @@ public class ProductController {
         return "working... ";
     }
 
-    @GetMapping(value = "/{Page}")
+    @GetMapping(value = "/get/{Page}")
     public ProductResponse getProduct(@PathVariable int Page) {
         List<Product> items = _productRepository.findCustomByActive(PageRequest.of(Page, 10));
         int totalRecord = (int) _productRepository.countProduct();
@@ -37,7 +37,13 @@ public class ProductController {
         return response;
     }
 
-    @GetMapping(value = "/{Page}/{ProductId}")
+    @GetMapping(value = "/getById/{ItemId}")
+    public Product getProductById(@PathVariable String ItemId) {
+        Product items = _productRepository.findCustomByItemId(ItemId);
+        return items;
+    }
+
+    @GetMapping(value = "/get/{Page}/{ProductId}")
     public ProductResponse getProductId(@PathVariable("ProductId") String ProductId, @PathVariable int Page) {
         List<Product> items = _productRepository.findCustomByProductId(ProductId, PageRequest.of(Page, 10));
         int totalRecord = (int) _productRepository.countByProductId(ProductId);

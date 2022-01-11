@@ -1,4 +1,4 @@
-package com.silver.ecart.ecartmicroservice.models;
+package com.silver.ecart.ecartmicroservice.models.Product;
 
 import java.util.List;
 
