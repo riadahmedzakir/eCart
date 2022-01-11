@@ -22,8 +22,8 @@ class SideNavigation extends React.Component {
 
     getProductList = (ProductId, PageNumber) => {
         const getUrl = (ProductId) ?
-            `${process.env.REACT_APP_PRODUCT_MICROSERVICE}/${PageNumber ? PageNumber : 0}/${ProductId}` :
-            `${process.env.REACT_APP_PRODUCT_MICROSERVICE}/${PageNumber ? PageNumber : 0}`
+            `${process.env.REACT_APP_PRODUCT_MICROSERVICE}/get/${PageNumber ? PageNumber : 0}/${ProductId}` :
+            `${process.env.REACT_APP_PRODUCT_MICROSERVICE}/get/${PageNumber ? PageNumber : 0}`
 
         axios.get(getUrl)
             .then(res => {

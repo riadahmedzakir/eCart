@@ -61,6 +61,8 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  color: #008250 !important;
+  cursor: pointer;
 }
 
 .product-description {

@@ -1,22 +1,38 @@
-import React from 'react';
+import React, { Suspense, lazy } from "react";
 import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
 import reportWebVitals from './reportWebVitals';
+import rootReducer from "./reducers";
+import './index.css';
 
 import { createStore } from 'redux';
-import { Provider } from 'react-redux';
+import { Provider, connect } from 'react-redux';
 import { composeWithDevTools } from 'redux-devtools-extension';
+import { BrowserRouter as Router, Switch, Route, withRouter } from "react-router-dom";
 
-import rootReducer from "./reducers";
-
+const App = lazy(() => import("./App"));
+const ProductDetails = lazy(() => import("./components/Product/ProductDetails"));
 const store = createStore(rootReducer, composeWithDevTools());
+
+class Root extends React.Component {
+  render() {
+    return (
+      <Suspense fallback={<div>Loading...</div>}>
+        <Switch>
+          <Route exact path="/" component={App} />
+          <Route exact path="/product-details" component={ProductDetails} />
+        </Switch>
+      </Suspense>
+    );
+  }
+}
+
+const RootWithAuth = withRouter(connect()(Root));
 
 ReactDOM.render(
   <Provider store={store}>
-    <React.StrictMode>
-      <App />
-    </React.StrictMode>
+    <Router>
+      <RootWithAuth />
+    </Router>
   </Provider>,
   document.getElementById('root')
 );

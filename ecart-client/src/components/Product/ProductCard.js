@@ -2,6 +2,8 @@ import React from "react";
 import { connect } from "react-redux";
 import axios from 'axios';
 import { Card, Grid, Image, Button } from 'semantic-ui-react';
+import { Link } from "react-router-dom";
+
 import { setCart } from './../../actions'
 
 class ProductCard extends React.Component {
@@ -32,7 +34,9 @@ class ProductCard extends React.Component {
                 <Image src={Item.imageUrl} wrapped ui={false} />
 
                 <Card.Content>
-                    <Card.Header className="product-title">{Item.name}</Card.Header>
+                    <Card.Header className="product-title">
+                        <Link to={"/product-details?" + Item.itemId}>{Item.name}</Link>
+                    </Card.Header>
                     <Card.Description className="product-description">
                         {Item.description}
                     </Card.Description>
