@@ -1,10 +1,10 @@
 import React from "react";
 import { connect } from "react-redux";
-import axios from 'axios';
 import { Card, Grid, Image, Button } from 'semantic-ui-react';
 import { Link } from "react-router-dom";
 
-import { setCart } from './../../actions'
+import { setCart } from './../../actions';
+import CartService from './../../services/cart/cart-service';
 
 class ProductCard extends React.Component {
     handleCartAdd = () => {
@@ -16,15 +16,8 @@ class ProductCard extends React.Component {
             productList: newCart
         }
 
-        this.saveCartItem(cartModel);
+        CartService.AddItemsToCart(cartModel);
         this.props.setCart(Item);
-    }
-
-    saveCartItem = (cartModel) => {
-        const url = `${process.env.REACT_APP_CART_MICROSERVICE}/add`;
-
-        axios.post(url, cartModel)
-            .then(res => { });
     }
 
     render() {
@@ -35,7 +28,7 @@ class ProductCard extends React.Component {
 
                 <Card.Content>
                     <Card.Header className="product-title">
-                        <Link to={"/product-details?" + Item.itemId}>{Item.name}</Link>
+                        <Link to={"/product-details?id=" + Item.itemId} query>{Item.name}</Link>
                     </Card.Header>
                     <Card.Description className="product-description">
                         {Item.description}
