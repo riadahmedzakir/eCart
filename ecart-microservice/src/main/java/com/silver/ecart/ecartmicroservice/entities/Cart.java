@@ -10,5 +10,6 @@ import lombok.Data;
 @RedisHash("Cart")
 public @Data class Cart implements Serializable {
     private String id;
-    private List<Product> ProductList;
+    private double Total;
+    private List<CartItems> ProductList;
 }

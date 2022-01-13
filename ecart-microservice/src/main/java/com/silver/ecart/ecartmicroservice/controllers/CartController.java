@@ -31,6 +31,7 @@ public class CartController {
     public String add(@RequestBody CartSaveRequestModel request) {
         Cart cart = new Cart();
         cart.setId(request.getId());
+        cart.setTotal(request.getTotal());
         cart.setProductList(request.getProductList());
 
         _cartRepository.save(cart);
