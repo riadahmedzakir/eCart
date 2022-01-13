@@ -3,21 +3,15 @@ import { connect } from "react-redux";
 import { Card, Grid, Image, Button } from 'semantic-ui-react';
 import { Link } from "react-router-dom";
 
-import { setCart } from './../../actions';
+import { setWholeCart } from './../../actions';
 import CartService from './../../services/cart/cart-service';
 
 class ProductCard extends React.Component {
     handleCartAdd = () => {
         const { Item, cart } = this.props;
-        const newCart = JSON.parse(JSON.stringify(cart));
-        newCart.push(Item);
-        const cartModel = {
-            id: localStorage.getItem("user_session_id"),
-            productList: newCart
-        }
-
-        CartService.AddItemsToCart(cartModel);
-        this.props.setCart(Item);
+        const newCart = CartService.PrepareCart(cart, Item, 1);
+        CartService.AddItemsToCart(newCart);
+        this.props.setWholeCart(newCart.productList);
     }
 
     render() {
@@ -64,4 +58,4 @@ const mapStateToProps = (state) => ({
     cart: state.cart.productList
 });
 
-export default connect(mapStateToProps, { setCart })(ProductCard);
+export default connect(mapStateToProps, { setWholeCart })(ProductCard);

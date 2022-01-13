@@ -7,7 +7,7 @@ import { setWholeCart } from './../../actions'
 
 class Navigation extends React.Component {
     countTotal = (list) => {
-        const total = list.reduce((sum, { unitPrice }) => sum + unitPrice, 0);
+        const total = list.reduce((sum, { price, quantity }) => sum + (price * quantity), 0);
         return total;
     }
 

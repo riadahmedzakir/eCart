@@ -10,7 +10,7 @@ import { Container, Breadcrumb, Divider, Image, Grid, Rating, Segment, Input, Bu
 import Navigation from "../Navigation/Navigation";
 import UtilityService from '../../services/utility/utility-service';
 import CartService from './../../services/cart/cart-service';
-import { setCart } from './../../actions';
+import { setWholeCart } from './../../actions';
 
 class ProductDetails extends React.Component {
     state = {
@@ -21,15 +21,10 @@ class ProductDetails extends React.Component {
     handleCartAdd = () => {
         const { cart } = this.props;
         const { CurrentItem } = this.state;
-        const newCart = JSON.parse(JSON.stringify(cart));
-        newCart.push(CurrentItem);
-        const cartModel = {
-            id: localStorage.getItem("user_session_id"),
-            productList: newCart
-        }
 
-        CartService.AddItemsToCart(cartModel);
-        this.props.setCart(CurrentItem);
+        const newCart = CartService.PrepareCart(cart, CurrentItem, 1);
+        CartService.AddItemsToCart(newCart);
+        this.props.setWholeCart(newCart.productList);
     }
 
     componentDidMount() {
@@ -109,4 +104,4 @@ const mapStateToProps = (state) => ({
     cart: state.cart.productList
 });
 
-export default connect(mapStateToProps, { setCart })(ProductDetails);
+export default connect(mapStateToProps, { setWholeCart })(ProductDetails);
