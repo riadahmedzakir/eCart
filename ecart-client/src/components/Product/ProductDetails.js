@@ -11,6 +11,8 @@ import Navigation from "../Navigation/Navigation";
 import UtilityService from '../../services/utility/utility-service';
 import CartService from './../../services/cart/cart-service';
 import { setWholeCart } from './../../actions';
+import ProductVendor from './ProductVendor';
+import ProductDeliveryInformation from './ProductDeliveryInformation';
 
 class ProductDetails extends React.Component {
     state = {
@@ -58,37 +60,35 @@ class ProductDetails extends React.Component {
                 <Divider />
 
                 <Container fluid className='product-details-container'>
-                    <Segment style={{ padding: '40px' }}>
-                        <Grid columns={2}>
-                            <Grid.Row>
-                                <Image size='medium' src={CurrentItem.imageUrl} />
+                    <Grid columns={3} centered>
+                        <Grid.Row>
+                            <Image className='product-details-image' src={CurrentItem.imageUrl} />
 
-                                <Grid.Column>
-                                    <p style={{ fontSize: '26px', fontWeight: 'bold', margin: '0' }}>{CurrentItem.name}</p>
-                                    <Grid style={{ padding: '0px 14px' }}>
-                                        <Grid.Row>
-                                            <Rating style={{ paddingTop: '4px' }} icon='star' defaultRating={4} maxRating={5} disabled />
-                                            <p className='rating-text'>69 Rating</p>
-                                        </Grid.Row>
-                                    </Grid>
-                                    <Divider />
-                                    <p className='unit-price-text'>$ {CurrentItem.unitPrice}</p>
+                            <Grid.Column>
+                                <p style={{ fontSize: '26px', fontWeight: 'bold', margin: '0' }}>{CurrentItem.name}</p>
+                                <Grid style={{ padding: '0px 14px' }}>
+                                    <Grid.Row>
+                                        <Rating style={{ paddingTop: '4px' }} icon='star' defaultRating={4} maxRating={5} disabled />
+                                        <p className='rating-text'>69 Rating</p>
+                                    </Grid.Row>
+                                </Grid>
+                                <Divider />
+                                <p className='unit-price-text'>$ {CurrentItem.unitPrice}</p>
 
-                                    <Input style={{ width: '150px' }} type='number' min={0} max={CurrentItem.stock} placeholder='Quantity'>
-                                        <input />
-                                    </Input>
+                                <Input style={{ width: '150px' }} type='number' min={0} max={CurrentItem.stock} placeholder='Quantity'>
+                                    <input />
+                                </Input>
 
-                                    <div>
-                                        <Button style={{ width: '150px', marginTop: '16px' }} color='green' onClick={this.handleCartAdd}>Add to cart</Button>
-                                    </div>
-                                </Grid.Column>
-                            </Grid.Row>
+                                <div>
+                                    <Button style={{ width: '150px', marginTop: '16px' }} color='green' onClick={this.handleCartAdd}>Add to cart</Button>
+                                </div>
 
-                            <Grid.Row>
+                                <ProductVendor />
+                            </Grid.Column>
 
-                            </Grid.Row>
-                        </Grid>
-                    </Segment>
+                            <ProductDeliveryInformation />
+                        </Grid.Row>
+                    </Grid>
 
                     <Segment>
                         <p style={{ fontSize: '32px', fontWeight: 'bold' }}>Description</p>

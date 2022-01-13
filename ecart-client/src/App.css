@@ -75,6 +75,11 @@
   padding: 40px;
 }
 
+.product-details-image {
+  width: 400px;
+  height: 400px;
+}
+
 .rating-text {
   padding-left: 20px;
   font-size: 16px;
@@ -88,4 +93,35 @@
   font-size: 40px;
   font-weight: bold;
   color: #008250;
+}
+
+.label-paragraph-12 {
+  padding-left: 10px;
+  font-size: 12px;
+  font-weight: bold;
+  margin: 0;
+  color: #757575;
+  text-align: start;
+}
+
+.product-details-text-c3 {
+  text-align: start;
+  padding-left: 10px;
+  font-size: 14px;
+  font-weight: bold;
+  margin: 0;
+}
+
+.vendor-name {
+  margin: 0px;
+  padding-left: 10px;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.vendor-ratings {
+  margin: 0px;
+  padding-left: 10px;
+  font-size: 30px;
+  font-weight: bold;
 }
