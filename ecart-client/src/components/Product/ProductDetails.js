@@ -13,6 +13,9 @@ import CartService from './../../services/cart/cart-service';
 import { setWholeCart } from './../../actions';
 import ProductVendor from './ProductVendor';
 import ProductDeliveryInformation from './ProductDeliveryInformation';
+import ProductRating from './ProductRating';
+import ProductReview from './ProductReview';
+import ProductQuestion from './ProductQuestion';
 
 class ProductDetails extends React.Component {
     state = {
@@ -62,7 +65,13 @@ class ProductDetails extends React.Component {
                 <Container fluid className='product-details-container'>
                     <Grid columns={3} centered>
                         <Grid.Row>
-                            <Image className='product-details-image' src={CurrentItem.imageUrl} />
+                            <Grid columns={1}>
+                                <Grid.Row>
+                                    <Grid.Column>
+                                        <Image className='product-details-image' src={CurrentItem.imageUrl} />
+                                    </Grid.Column>
+                                </Grid.Row>
+                            </Grid>
 
                             <Grid.Column>
                                 <p style={{ fontSize: '26px', fontWeight: 'bold', margin: '0' }}>{CurrentItem.name}</p>
@@ -94,6 +103,10 @@ class ProductDetails extends React.Component {
                         <p style={{ fontSize: '32px', fontWeight: 'bold' }}>Description</p>
                         <p>{CurrentItem.description}</p>
                     </Segment>
+
+                    <ProductRating />
+                    <ProductReview />
+                    <ProductQuestion />
                 </Container>
             </Container >
         )
