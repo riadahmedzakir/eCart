@@ -5,11 +5,13 @@ import { Divider, Grid, Icon, Pagination, Segment } from "semantic-ui-react";
 class ProductQuestion extends React.Component {
     render() {
         const posts = [{
+            ItemId: 1,
             Question: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua?',
             QuestionedBy: 'Lorem ipsum',
             Answer: 'Praesent semper feugiat nibh sed pulvinar proin gravida hendrerit. Sed tempus urna et pharetra pharetra massa massa ultricies mi.'
         },
         {
+            ItemId: 2,
             Question: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua?',
             QuestionedBy: 'Lorem ipsum',
             Answer: 'Praesent semper feugiat nibh sed pulvinar proin gravida hendrerit. Sed tempus urna et pharetra pharetra massa massa ultricies mi.'
@@ -17,7 +19,7 @@ class ProductQuestion extends React.Component {
 
         return (
             <Segment>
-                <p style={{ fontWeight: 'bold' }}>Questions</p>
+                <p style={{ fontWeight: 'bold' }}>Questions & Answers</p>
                 <Divider />
 
                 {
@@ -46,9 +48,11 @@ class ProductQuestion extends React.Component {
 
                                 <Grid.Row>
                                     <Grid.Column width={1}>
-                                        <Icon style={{ fontSize: '20px' }} circular color='red'  size="big" name='checkmark' />
+                                        <Icon style={{ fontSize: '20px' }} circular color='red' size="big" name='checkmark' />
                                     </Grid.Column>
-                                    <Grid.Column width={15}>{item.Answer}</Grid.Column>
+                                    <Grid.Column width={15}>
+                                        <p style={{ padding: 0, fontSize: '16px' }}>{item.Answer}</p>
+                                    </Grid.Column>
                                 </Grid.Row>
                             </Grid>
                             <Divider />

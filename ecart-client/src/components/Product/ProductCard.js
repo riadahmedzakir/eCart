@@ -22,7 +22,7 @@ class ProductCard extends React.Component {
 
                 <Card.Content>
                     <Card.Header className="product-title">
-                        <Link to={"/product-details?id=" + Item.itemId} query>{Item.name}</Link>
+                        <Link to={"/product-details?id=" + Item.itemId}>{Item.name}</Link>
                     </Card.Header>
                     <Card.Description className="product-description">
                         {Item.description}

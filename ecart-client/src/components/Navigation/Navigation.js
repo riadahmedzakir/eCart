@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import axios from 'axios';
 import { Button, Menu, Search } from "semantic-ui-react";
 import { setWholeCart } from './../../actions'
+import { Link } from "react-router-dom";
 
 class Navigation extends React.Component {
     countTotal = (list) => {
@@ -46,7 +47,9 @@ class Navigation extends React.Component {
                         <i aria-hidden="true" className="shopping cart icon"></i>
                     </Menu.Item>
                     <Menu.Item>
-                        <Button circular color='green'>{cart.length}</Button>
+                        <Button circular color='green'>
+                            <Link to={"/Cart"}>{cart.length}</Link>
+                        </Button>
                     </Menu.Item>
                     <Menu.Item>
                         <p>$ {totalValueAddedToCart}</p>

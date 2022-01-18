@@ -5,7 +5,7 @@ import { Button, Divider, Grid, Segment } from "semantic-ui-react";
 class ProductVendor extends React.Component {
     render() {
         return (
-            <Segment placeholder>
+            <Segment placeholder style={{ marginTop: '50px' }}>
                 <Grid>
                     <Grid.Row>
                         <Grid columns={2}>
