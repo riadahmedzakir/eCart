@@ -2,52 +2,79 @@ import './../../App.css';
 
 import React from "react";
 import { connect } from 'react-redux';
+import { Link } from 'react-router-dom';
 import { Breadcrumb, Button, Container, Divider, Grid, Image, Input } from 'semantic-ui-react';
+import axios from 'axios';
 
 import { setWholeCart } from './../../actions'
 import Navigation from "../Navigation/Navigation";
-import { Link } from 'react-router-dom';
+import CartService from './../../services/cart/cart-service';
 
 class Cart extends React.Component {
     state = {
         InputController: {},
-        posts: []
+        posts: [],
+        SubTotal: 0,
+        Total: 0,
+        DeliveryCharge: 5,
+        Tax: 0
     }
 
+
     componentDidMount() {
-        const { InputController } = this.state;
-        const posts = [{
-            "itemId": "ba1aa961-eb50-4133-9537-9288ccbe22a4",
-            "name": "Beef Ground Medium",
-            "active": true,
-            "description": "Aenean fermentum. Donec ut mauris eget massa tempor convallis. Nulla neque libero, convallis eget, eleifend luctus, ultricies eu, nibh.\n\nQuisque id justo sit amet sapien dignissim vestibulum. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Nulla dapibus dolor vel est. Donec odio justo, sollicitudin ut, suscipit a, feugiat et, eros.",
-            "productId": "4456924f-44b2-497c-86ba-b88be95d8df7",
-            "createDate": "2021-05-26T08:04:22.000+00:00",
-            "unitPrice": 35,
-            "imageUrl": "https://picsum.photos/200",
-            "stock": 6,
-            "lastUpdateDate": "2021-10-25T03:14:05.000+00:00"
-        }];
+        this.getCartItems();
+    }
 
-        posts.forEach(item => {
-            InputController[item.itemId] = item.stock;
-        });
+    getCartItems = () => {
+        const url = `${process.env.REACT_APP_CART_MICROSERVICE}/get/${localStorage.getItem("user_session_id")}`;
 
-        this.setState({ InputController, posts });
+        axios.get(url)
+            .then(res => {
+                const cart = (res && res.data && res.data.productList.length) ? res.data.productList : [];
+                this.getProductInfos(cart);
+            });
+    }
+
+    getProductInfos = (cart) => {
+        const url = `${process.env.REACT_APP_PRODUCT_MICROSERVICE}/getProductByIds`;
+        // const { cart } = this.props;
+        const { Tax, DeliveryCharge } = this.state;
+        const itemIds = cart.map(item => item.itemId);
+        const payload = {
+            itemIds: itemIds
+        };
+
+        if (itemIds.length) {
+            axios.post(url, payload)
+                .then(res => {
+                    const { InputController } = this.state;
+                    const posts = res.data;
+                    const SubTotal = CartService.CountTotal(cart);
+                    const Total = SubTotal + DeliveryCharge + Tax;
+                    posts.forEach(item => {
+                        InputController[item.itemId] = cart.find(x => x.itemId === item.itemId).quantity;
+                    });
+
+
+                    this.setState({ InputController, posts, SubTotal, Total });
+                });
+        }
     }
 
     handleChange = (event) => {
-        const { InputController } = this.state;
-        const value = event.target.value;
+        const { InputController, Total, posts, SubTotal } = this.state;
+        const value = parseInt(event.target.value);
         const name = event.target.name;
 
         InputController[name] = value;
-
-        this.setState({ InputController })
+        const newValueAdded = value * posts.find(item => item.itemId === name).unitPrice;
+        const newSubtotal = SubTotal + newValueAdded;
+        const newTotal = Total + newValueAdded;
+        this.setState({ InputController, Total: newTotal, SubTotal: newSubtotal })
     }
 
     render() {
-        const { InputController, posts } = this.state;
+        const { InputController, posts, SubTotal, Tax, DeliveryCharge, Total } = this.state;
 
         return (
             <Container fluid>
@@ -79,7 +106,7 @@ class Cart extends React.Component {
 
                     {
                         posts.map(item =>
-                            <Grid.Row>
+                            <Grid.Row key={item.itemId}>
                                 <Grid.Column width={6}>
                                     <Grid columns={2}>
                                         <Grid.Row>
@@ -95,7 +122,7 @@ class Cart extends React.Component {
                                     </Grid>
                                 </Grid.Column>
                                 <Grid.Column width={4}>
-                                    <Input name={item.itemId} type='number' placeholder='Quantity' value={InputController[item.itemId]} onChange={this.handleChange} />
+                                    <Input name={item.itemId} type='number' placeholder='Quantity' min='0' max={item.stock} value={InputController[item.itemId]} onChange={this.handleChange} />
                                 </Grid.Column>
                                 <Grid.Column width={4}>{item.unitPrice * InputController[item.itemId]}</Grid.Column>
                             </Grid.Row>
@@ -111,22 +138,22 @@ class Cart extends React.Component {
                             <Grid columns={2}>
                                 <Grid.Row>
                                     <Grid.Column><p>SubTotal : </p></Grid.Column>
-                                    <Grid.Column><p>555</p></Grid.Column>
+                                    <Grid.Column><p>{SubTotal}</p></Grid.Column>
                                 </Grid.Row>
 
                                 <Grid.Row>
                                     <Grid.Column><p>Tax : </p></Grid.Column>
-                                    <Grid.Column><p>555</p></Grid.Column>
+                                    <Grid.Column><p>{Tax}</p></Grid.Column>
                                 </Grid.Row>
 
                                 <Grid.Row>
                                     <Grid.Column><p>Delivery Charge : </p></Grid.Column>
-                                    <Grid.Column><p>555</p></Grid.Column>
+                                    <Grid.Column><p>{DeliveryCharge}</p></Grid.Column>
                                 </Grid.Row>
-                                <Divider style={{marginRight: '260px'}} />
+                                <Divider style={{ marginRight: '260px' }} />
                                 <Grid.Row>
                                     <Grid.Column><p style={{ fontSize: '24px', fontWeight: 'bold' }}>Total : </p></Grid.Column>
-                                    <Grid.Column><p style={{ fontSize: '24px', fontWeight: 'bold' }}>555</p></Grid.Column>
+                                    <Grid.Column><p style={{ fontSize: '24px', fontWeight: 'bold' }}>{Total}</p></Grid.Column>
                                 </Grid.Row>
                             </Grid>
                         </Grid.Column>

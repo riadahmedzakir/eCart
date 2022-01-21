@@ -34,9 +34,15 @@ function PrepareCart(Cart, CurrentItem, Quantity) {
     return cartModel;
 }
 
+function CountTotal(list) {
+    const total = list.reduce((sum, { price, quantity }) => sum + (price * quantity), 0);
+    return total;
+}
+
 const CartService = {
     AddItemsToCart: AddItemsToCart,
-    PrepareCart: PrepareCart
+    PrepareCart: PrepareCart,
+    CountTotal: CountTotal
 };
 
 export default CartService;

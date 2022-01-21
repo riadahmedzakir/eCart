@@ -5,13 +5,9 @@ import axios from 'axios';
 import { Button, Menu, Search } from "semantic-ui-react";
 import { setWholeCart } from './../../actions'
 import { Link } from "react-router-dom";
+import CartService from './../../services/cart/cart-service';
 
 class Navigation extends React.Component {
-    countTotal = (list) => {
-        const total = list.reduce((sum, { price, quantity }) => sum + (price * quantity), 0);
-        return total;
-    }
-
     setUserIdentity = () => {
         const userSessionId = localStorage.getItem("user_session_id");
         if (!userSessionId) { localStorage.setItem("user_session_id", uuidv4()) }
@@ -34,7 +30,7 @@ class Navigation extends React.Component {
 
     render() {
         const { cart } = this.props;
-        const totalValueAddedToCart = this.countTotal(cart);
+        const totalValueAddedToCart = CartService.CountTotal(cart);
 
         return (
             <Menu >
