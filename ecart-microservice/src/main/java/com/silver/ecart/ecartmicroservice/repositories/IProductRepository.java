@@ -21,6 +21,9 @@ public interface IProductRepository extends MongoRepository<Product, Long> {
     @Query(value = "{ ProductId : ?0, Active: true }", count = true)
     int countByProductId(String ProductId);
 
+    @Query(value = "{ _id : { $in : ?0 } }")
+    List<Product> findCustomByItemIds(String[] ItemIds);
+
     @Query(value = "{ Active: true }", count = true)
     int countProduct();
 }

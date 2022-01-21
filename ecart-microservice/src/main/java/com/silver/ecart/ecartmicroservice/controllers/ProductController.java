@@ -1,8 +1,10 @@
 package com.silver.ecart.ecartmicroservice.controllers;
 
 import java.util.List;
+import javax.validation.Valid;
 
 import com.silver.ecart.ecartmicroservice.entities.Product;
+import com.silver.ecart.ecartmicroservice.models.Product.ProductByIdRequest;
 import com.silver.ecart.ecartmicroservice.models.Product.ProductResponse;
 import com.silver.ecart.ecartmicroservice.repositories.IProductRepository;
 
@@ -10,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -40,6 +44,12 @@ public class ProductController {
     @GetMapping(value = "/getById/{ItemId}")
     public Product getProductById(@PathVariable String ItemId) {
         Product items = _productRepository.findCustomByItemId(ItemId);
+        return items;
+    }
+
+    @PostMapping(value = "/getProductByIds")
+    public List<Product> getProductByIds(@Valid @RequestBody ProductByIdRequest payload) {
+        List<Product> items = _productRepository.findCustomByItemIds(payload.getItemIds());
         return items;
     }
 
