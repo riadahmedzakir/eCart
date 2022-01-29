@@ -64,20 +64,44 @@ class Cart extends React.Component {
     }
 
     handleChange = (event) => {
+        if (!event.target.value) { return; }
+
         const { InputController, Total, posts, SubTotal } = this.state;
         const value = parseInt(event.target.value);
         const name = event.target.name;
+        const isGreater = (value > InputController[name]) ? true : false;
+        const extraAdded = (isGreater) ? value - InputController[name] : InputController[name] - value;
+
 
         InputController[name] = value;
-        const newValueAdded = value * posts.find(item => item.itemId === name).unitPrice;
-        const newSubtotal = SubTotal + newValueAdded;
-        const newTotal = Total + newValueAdded;
+        const newValueAdded = extraAdded * posts.find(item => item.itemId === name).unitPrice;
+        const newSubtotal = (isGreater) ? SubTotal + newValueAdded : SubTotal - newValueAdded;
+        const newTotal = (isGreater) ? Total + newValueAdded : Total - newValueAdded;
         this.setState({ InputController, Total: newTotal, SubTotal: newSubtotal });
     }
 
     handleCheckout = () => {
+        const { InputController, SubTotal } = this.state;
+        const { cart } = this.props;
+        const CartItemIds = Object.keys(InputController);
+        CartItemIds.forEach(itemId => {
+            const cartIndex = cart.findIndex(product => product.itemId === itemId);
+            cart[cartIndex].quantity = InputController[itemId];
+        });
+        const newCart = JSON.parse(JSON.stringify(cart));
+        this.props.setWholeCart(newCart);
+
         this.setState({ CheckoutDisabled: true });
-        // this.props.history.push('/checkout');
+
+        const cartModel = {
+            id: localStorage.getItem("user_session_id"),
+            total: SubTotal,
+            productList: newCart
+        }
+
+        CartService.AddItemsToCart(cartModel).then(() => { 
+            this.props.history.push('/checkout');
+        });
     }
 
     render() {
@@ -170,7 +194,7 @@ class Cart extends React.Component {
                         <Grid.Column></Grid.Column>
                         <Grid.Column></Grid.Column>
                         <Grid.Column>
-                            <Button disabled={CheckoutDisabled} onClick={this.handleCheckout} style={{ width: '60%' }} size='huge' color='green'>
+                            <Button loading={CheckoutDisabled} disabled={CheckoutDisabled} onClick={this.handleCheckout} style={{ width: '60%' }} size='huge' color='green'>
                                 Checkout
                             </Button>
                         </Grid.Column>

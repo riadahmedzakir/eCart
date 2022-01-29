@@ -29,8 +29,6 @@ function PrepareCart(Cart, CurrentItem, Quantity) {
         productList: newCart
     }
 
-    console.log(cartModel);
-
     return cartModel;
 }
 
