@@ -12,6 +12,7 @@ import { BrowserRouter as Router, Switch, Route, withRouter } from "react-router
 const App = lazy(() => import("./App"));
 const ProductDetails = lazy(() => import("./components/Product/ProductDetails"));
 const Cart = lazy(() => import("./components/Cart/Cart"));
+const Checkout = lazy(() => import("./components/Checkout/Checkout"))
 const store = createStore(rootReducer, composeWithDevTools());
 
 class Root extends React.Component {
@@ -22,6 +23,7 @@ class Root extends React.Component {
           <Route exact path="/" component={App} />
           <Route exact path="/product-details" component={ProductDetails} />
           <Route exact path="/cart" component={Cart} />
+          <Route exact path="/checkout" component={Checkout} />
         </Switch>
       </Suspense>
     );

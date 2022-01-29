@@ -17,7 +17,8 @@ class Cart extends React.Component {
         SubTotal: 0,
         Total: 0,
         DeliveryCharge: 5,
-        Tax: 0
+        Tax: 0,
+        CheckoutDisabled: false
     }
 
 
@@ -36,8 +37,9 @@ class Cart extends React.Component {
     }
 
     getProductInfos = (cart) => {
+        if (!cart && !cart.length) { return; }
+
         const url = `${process.env.REACT_APP_PRODUCT_MICROSERVICE}/getProductByIds`;
-        // const { cart } = this.props;
         const { Tax, DeliveryCharge } = this.state;
         const itemIds = cart.map(item => item.itemId);
         const payload = {
@@ -70,11 +72,16 @@ class Cart extends React.Component {
         const newValueAdded = value * posts.find(item => item.itemId === name).unitPrice;
         const newSubtotal = SubTotal + newValueAdded;
         const newTotal = Total + newValueAdded;
-        this.setState({ InputController, Total: newTotal, SubTotal: newSubtotal })
+        this.setState({ InputController, Total: newTotal, SubTotal: newSubtotal });
+    }
+
+    handleCheckout = () => {
+        this.setState({ CheckoutDisabled: true });
+        // this.props.history.push('/checkout');
     }
 
     render() {
-        const { InputController, posts, SubTotal, Tax, DeliveryCharge, Total } = this.state;
+        const { InputController, posts, SubTotal, Tax, DeliveryCharge, Total, CheckoutDisabled } = this.state;
 
         return (
             <Container fluid>
@@ -162,12 +169,15 @@ class Cart extends React.Component {
                     <Grid.Row>
                         <Grid.Column></Grid.Column>
                         <Grid.Column></Grid.Column>
-                        <Grid.Column><Button style={{ width: '60%' }} size='huge' color='green'>Checkout</Button></Grid.Column>
+                        <Grid.Column>
+                            <Button disabled={CheckoutDisabled} onClick={this.handleCheckout} style={{ width: '60%' }} size='huge' color='green'>
+                                Checkout
+                            </Button>
+                        </Grid.Column>
                     </Grid.Row>
                 </Grid>
 
-
-            </Container>
+            </Container >
         )
     }
 }

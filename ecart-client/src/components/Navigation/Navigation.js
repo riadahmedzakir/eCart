@@ -43,9 +43,11 @@ class Navigation extends React.Component {
                         <i aria-hidden="true" className="shopping cart icon"></i>
                     </Menu.Item>
                     <Menu.Item>
-                        <Button circular color='green'>
-                            <Link to={"/Cart"}>{cart.length}</Link>
-                        </Button>
+                        <Link to={"/Cart"}>
+                            <Button circular color='green'>
+                                {cart.length}
+                            </Button>
+                        </Link>
                     </Menu.Item>
                     <Menu.Item>
                         <p>$ {totalValueAddedToCart}</p>
