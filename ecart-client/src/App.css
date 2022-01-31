@@ -38,8 +38,6 @@
   }
 }
 
-
-
 .custom-navigation {
   padding: 10px;
 }
@@ -124,4 +122,9 @@
   padding-left: 10px;
   font-size: 30px;
   font-weight: bold;
+}
+
+.flag-icons .ui.label > img {
+  width: 30px !important;
+  height: 20px !important;
 }
