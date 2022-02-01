@@ -128,3 +128,31 @@
   width: 30px !important;
   height: 20px !important;
 }
+
+.search-input > div {
+  width: 100%;
+}
+
+.search-input input {
+  margin: 0 !important;
+  max-width: 100% !important;
+  -webkit-box-flex: 1 !important;
+  -ms-flex: 1 0 auto !important;
+  flex: 1 0 auto !important;
+  outline: 0 !important;
+  -webkit-tap-highlight-color: rgba(255, 255, 255, 0) !important;
+  text-align: left !important;
+  line-height: 1.21428571em !important;
+  font-family: Lato, "Helvetica Neue", Arial, Helvetica, sans-serif !important;
+  padding: 0.67857143em 1em !important;
+  background: #fff !important;
+  border: 1px solid rgba(34, 36, 38, 0.15) !important;
+  color: rgba(0, 0, 0, 0.87) !important;
+  border-radius: 0.28571429rem !important;
+  -webkit-transition: border-color 0.1s ease, -webkit-box-shadow 0.1s ease !important;
+  transition: border-color 0.1s ease, -webkit-box-shadow 0.1s ease !important;
+  transition: box-shadow 0.1s ease, border-color 0.1s ease !important;
+  transition: box-shadow 0.1s ease, border-color 0.1s ease, -webkit-box-shadow 0.1s ease !important;
+  -webkit-box-shadow: none !important;
+  box-shadow: none !important;
+}
