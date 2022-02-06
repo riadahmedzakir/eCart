@@ -2,12 +2,15 @@ import './../../App.css';
 
 import React from "react";
 import { Link } from "react-router-dom";
-import { Breadcrumb, Button, Checkbox, Container, Divider, Grid, Icon, Image, Input, Search, Segment, Step } from "semantic-ui-react";
+import { Breadcrumb, Button, Container, Divider, Grid, Icon, Segment, Step } from "semantic-ui-react";
 
 import Navigation from "../Navigation/Navigation";
 import parsePhoneNumber from 'libphonenumber-js';
 import { Country, State, City } from 'country-state-city';
 import creditCardType from "credit-card-type";
+import PersonalDetails from './PersonalDetails';
+import ShippingDetails from './ShippingDetails';
+import BillingDetails from './BillingDetails';
 
 class Checkout extends React.Component {
     state = {
@@ -78,7 +81,7 @@ class Checkout extends React.Component {
             CardHolderName: '',
             CardNumber: '',
             CardExpiryDate: '',
-            CardCCV: ''
+            CardSecret: ''
         },
         FormDisableController: {
             ShippingStreet: false,
@@ -233,10 +236,11 @@ class Checkout extends React.Component {
 
     handleCreditCard = (event, data) => {
         const { FormController } = this.state;
-        
+
         if (data.value === "") {
             FormController[data.uniqueidentifier] = "";
             this.setState({ FormController });
+            return;
         }
 
         var cardNumber = data.value.replace(/ /g, "");
@@ -265,6 +269,36 @@ class Checkout extends React.Component {
             FormController[data.uniqueidentifier] = cardNumber;
         }
         this.setState({ FormController, CardType });
+    }
+
+    handleExpiry = (event, data) => {
+        const { FormController } = this.state;
+
+        if (event.nativeEvent.inputType === "deleteContentBackward") {
+            FormController[data.uniqueidentifier] = data.value;
+            this.setState({ FormController });
+            return;
+        }
+
+        if (data.value === "") {
+            FormController[data.uniqueidentifier] = "";
+            this.setState({ FormController });
+            return;
+        }
+
+        const expiry = data.value.replace("/", "");
+        if (isNaN(parseInt(expiry))) { return; }
+        if (expiry.length > 1) {
+            FormController[data.uniqueidentifier] = data.value;
+        } else {
+            if (expiry > 1) {
+                FormController[data.uniqueidentifier] = `0${expiry}/`;
+            } else if (expiry === 1) {
+                FormController[data.uniqueidentifier] = data.value;
+            }
+        }
+
+        this.setState({ FormController });
     }
 
     handleSameAsShipping = (event, data) => {
@@ -318,164 +352,21 @@ class Checkout extends React.Component {
         const { StepperController, CurrentPhoneCountry, SearchResults, FormController, FormDisableController, SelectedPaymentMethod, CardType } = this.state;
 
         if (StepperController.Details) {
-            return (
-                <div>
-                    <Input style={{ marginBottom: '10px' }} fluid icon="user" placeholder='First Name'
-                        uniqueidentifier="FirstName" value={FormController.FirstName} onChange={this.handleForm} />
-
-                    <Input style={{ marginBottom: '10px' }} fluid icon="user" placeholder='Last Name'
-                        uniqueidentifier="LastName" value={FormController.LastName} onChange={this.handleForm} />
-
-                    <Input type='email' style={{ marginBottom: '10px' }} fluid icon="mail" placeholder='Email'
-                        uniqueidentifier="Email" value={FormController.Email} onChange={this.handleForm} />
-
-                    <Input className='flag-icons' onChange={this.handlePhonenumber} labelPosition='left'
-                        label={{ content: <Image src={`country-flag/${CurrentPhoneCountry}-flag.jpg`} /> }}
-                        fluid icon="phone" placeholder='Mobile No.' uniqueidentifier="Mobile" value={FormController.Mobile} />
-                </div>
-            )
+            return <PersonalDetails FormController={FormController} CurrentPhoneCountry={CurrentPhoneCountry} handleForm={this.handleForm}
+                handlePhonenumber={this.handlePhonenumber} />
         }
 
         if (StepperController.Shipping) {
-            return (
-                <div>
-                    <Input style={{ marginBottom: '10px' }} fluid icon="location arrow" placeholder='Street'
-                        uniqueidentifier="ShippingStreet" value={FormController.ShippingStreet} onChange={this.handleForm} />
-
-                    <Search className='search-input' fluid style={{ marginBottom: '10px' }} results={SearchResults.ShippingCountryResult}
-                        icon="location arrow" uniqueidentifier="ShippingCountry" placeholder="Country" onSearchChange={this.handleCountry}
-                        onResultSelect={this.handleSelectResult} value={FormController.ShippingCountry.title} />
-
-                    <Search className='search-input' fluid style={{ marginBottom: '10px' }} results={SearchResults.ShippingStateResult}
-                        icon="location arrow" uniqueidentifier="ShippingState" placeholder="State" onSearchChange={this.handleState}
-                        onResultSelect={this.handleSelectResult} value={FormController.ShippingState.title} disabled={FormDisableController.ShippingState} />
-
-                    <Search className='search-input' fluid style={{ marginBottom: '10px' }} results={SearchResults.ShippingCityResult}
-                        icon="location arrow" uniqueidentifier="ShippingCity" placeholder="City" onSearchChange={this.handleCity}
-                        onResultSelect={this.handleSelectResult} value={FormController.ShippingCity.title} disabled={FormDisableController.ShippingCity} />
-
-                    <Input style={{ marginBottom: '10px' }} fluid icon="location arrow" placeholder='Zip'
-                        uniqueidentifier="ShippingZip" value={FormController.ShippingZip} onChange={this.handleForm} />
-
-                    <Input style={{ marginBottom: '10px' }} fluid icon="home" placeholder='House name (Optional)'
-                        uniqueidentifier="ShippingHouse" value={FormController.ShippingHouse} onChange={this.handleForm} />
-
-                    <Input style={{ marginBottom: '10px' }} fluid icon="home" placeholder='Flat no. (Optional)'
-                        uniqueidentifier="ShippingFlat" value={FormController.ShippingFlat} onChange={this.handleForm} />
-                </div>
-            )
+            return <ShippingDetails FormController={FormController} FormDisableController={FormDisableController} SearchResults={SearchResults}
+                handleForm={this.handleForm} handleSelectResult={this.handleSelectResult} handleCountry={this.handleCountry} handleState={this.handleState}
+                handleCity={this.handleCity} />
         }
 
         if (StepperController.Billing) {
-            return (
-                <div>
-                    <Checkbox style={{ marginBottom: '10px' }} label='Same as shipping' onChange={this.handleSameAsShipping}
-                        checked={FormController.BillingSameAs} />
-
-                    <Input style={{ marginBottom: '10px' }} fluid icon="location arrow" placeholder='Street'
-                        uniqueidentifier="BillingStreet" value={FormController.BillingStreet} onChange={this.handleForm}
-                        disabled={FormDisableController.BillingStreet} />
-
-                    <Search className='search-input' fluid style={{ marginBottom: '10px' }} results={SearchResults.BillingCountryResult}
-                        icon="location arrow" uniqueidentifier="BillingCountry" placeholder="Country" onSearchChange={this.handleCountry}
-                        onResultSelect={this.handleSelectResult} value={FormController.BillingCountry.title}
-                        disabled={FormDisableController.BillingCountry} />
-
-                    <Search className='search-input' fluid style={{ marginBottom: '10px' }} results={SearchResults.BillingStateResult}
-                        icon="location arrow" uniqueidentifier="BillingState" placeholder="State" onSearchChange={this.handleState}
-                        onResultSelect={this.handleSelectResult} value={FormController.BillingState.title}
-                        disabled={FormDisableController.BillingState} />
-
-                    <Search className='search-input' fluid style={{ marginBottom: '10px' }} results={SearchResults.BillingCityResult}
-                        icon="location arrow" uniqueidentifier="BillingCity" placeholder="City" onSearchChange={this.handleCity}
-                        onResultSelect={this.handleSelectResult} value={FormController.BillingCity.title}
-                        disabled={FormDisableController.BillingCity} />
-
-                    <Input style={{ marginBottom: '10px' }} fluid icon="location arrow" placeholder='Zip'
-                        uniqueidentifier="BillingZip" value={FormController.BillingZip} onChange={this.handleForm}
-                        disabled={FormDisableController.BillingZip} />
-
-                    <Input style={{ marginBottom: '10px' }} fluid icon="home" placeholder='House name (Optional)'
-                        uniqueidentifier="BillingHouse" value={FormController.BillingHouse} onChange={this.handleForm}
-                        disabled={FormDisableController.BillingHouse} />
-
-                    <Input style={{ marginBottom: '10px' }} fluid icon="home" placeholder='Flat no. (Optional)'
-                        uniqueidentifier="BillingFlat" value={FormController.BillingFlat} onChange={this.handleForm}
-                        disabled={FormDisableController.BillingFlat} />
-
-                    <p style={{ marginTop: '20px', fontSize: '20px', fontWeight: 'bold' }}>Payment Methods</p>
-                    <Divider />
-
-                    <Grid>
-                        <Grid.Row>
-                            <Grid.Column>
-                                <Button uniqueidentifier="Cash" toggle icon active={SelectedPaymentMethod === 'Cash'}
-                                    onClick={this.handlePaymentMethod}>
-                                    <Icon color={SelectedPaymentMethod === 'Cash' ? 'white' : 'black'} name='money bill alternate outline' />
-                                </Button>
-                            </Grid.Column>
-
-                            <Grid.Column>
-                                <Button uniqueidentifier="Card" toggle icon active={SelectedPaymentMethod === 'Card'}
-                                    onClick={this.handlePaymentMethod}>
-                                    <Icon color={SelectedPaymentMethod === 'Card' ? 'white' : 'black'} name='credit card' />
-                                </Button>
-                            </Grid.Column>
-                        </Grid.Row>
-                    </Grid>
-
-                    {
-                        (SelectedPaymentMethod === 'Cash') ?
-                            <Grid>
-                                <Grid.Row>
-                                    <Grid.Column>
-                                        <p style={{ fontWeight: 'bold', marginBottom: '0px' }}>PAY BY CASH</p>
-                                        <p style={{ fontSize: '12px', color: '#a5a7a8' }}>Consider payment upon ordering for contactless delivery. You can't pay by a card to the rider upon delivery.</p>
-                                    </Grid.Column>
-                                </Grid.Row>
-                            </Grid> : ''
-                    }
-
-                    {
-                        (SelectedPaymentMethod === 'Card') ?
-                            <Grid columns={1}>
-                                <Grid.Row>
-                                    <Grid.Column>
-                                        <Input style={{ marginBottom: '10px' }} fluid icon="user" placeholder='Cardholders Name'
-                                            uniqueidentifier="CardHolderName" value={FormController.CardHolderName} onChange={this.handleForm}
-                                        />
-                                    </Grid.Column>
-                                </Grid.Row>
-
-                                <Grid.Row>
-                                    <Grid.Column>
-                                        <Grid columns={3}>
-                                            <Grid.Row>
-                                                <Grid.Column width={10}>
-                                                    <Input style={{ marginBottom: '10px' }} fluid icon={CardType} placeholder='Card Number'
-                                                        uniqueidentifier="CardNumber" value={FormController.CardNumber} onChange={this.handleCreditCard}
-                                                    />
-                                                </Grid.Column>
-
-                                                <Grid.Column width={3}>
-                                                    <Input style={{ marginBottom: '10px' }} fluid placeholder='Expiry Date'
-                                                        uniqueidentifier="CardExpiryDate" value={FormController.CardExpiryDate} onChange={this.handleForm}
-                                                    />
-                                                </Grid.Column>
-
-                                                <Grid.Column width={3}>
-                                                    <Input style={{ marginBottom: '10px' }} fluid placeholder='CCV'
-                                                        uniqueidentifier="CardCCV" value={FormController.CardCCV} onChange={this.handleForm}
-                                                    />
-                                                </Grid.Column>
-                                            </Grid.Row>
-                                        </Grid>
-                                    </Grid.Column>
-                                </Grid.Row>
-                            </Grid> : ''
-                    }
-                </div>
-            )
+            return <BillingDetails SearchResults={SearchResults} FormController={FormController} FormDisableController={FormDisableController}
+                SelectedPaymentMethod={SelectedPaymentMethod} CardType={CardType} handleSameAsShipping={this.handleSameAsShipping} handleForm={this.handleForm}
+                handleSelectResult={this.handleSelectResult} handleCountry={this.handleCountry} handleState={this.handleState} handleCity={this.handleCity}
+                handlePaymentMethod={this.handlePaymentMethod} handleCreditCard={this.handleCreditCard} handleExpiry={this.handleExpiry} />
         }
     }
 
