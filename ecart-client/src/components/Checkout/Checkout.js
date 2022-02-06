@@ -7,6 +7,7 @@ import { Breadcrumb, Button, Checkbox, Container, Divider, Grid, Icon, Image, In
 import Navigation from "../Navigation/Navigation";
 import parsePhoneNumber from 'libphonenumber-js';
 import { Country, State, City } from 'country-state-city';
+import creditCardType from "credit-card-type";
 
 class Checkout extends React.Component {
     state = {
@@ -32,9 +33,11 @@ class Checkout extends React.Component {
         },
         CurrentPhoneCountry: 'ad',
         CurrentActiveStepper: 'Details',
+        SelectedPaymentMethod: '',
+        CardType: 'credit card',
         IsPreviousButtonVisible: false,
         IsNextButtonVisible: true,
-        Form: {
+        FormController: {
             FirstName: '',
             LastName: '',
             Email: '',
@@ -71,7 +74,11 @@ class Checkout extends React.Component {
             },
             BillingZip: '',
             BillingHouse: '',
-            BillingFlat: ''
+            BillingFlat: '',
+            CardHolderName: '',
+            CardNumber: '',
+            CardExpiryDate: '',
+            CardCCV: ''
         },
         FormDisableController: {
             ShippingStreet: false,
@@ -159,53 +166,53 @@ class Checkout extends React.Component {
     }
 
     handlePhonenumber = (event) => {
-        const { Form } = this.state;
+        const { FormController } = this.state;
         const phoneNumber = parsePhoneNumber(event.target.value);
-        Form.Mobile = event.target.value;
+        FormController.Mobile = event.target.value;
 
         if (phoneNumber) {
-            this.setState({ CurrentPhoneCountry: phoneNumber.country, Form: Form });
+            this.setState({ CurrentPhoneCountry: phoneNumber.country, FormController: FormController });
         } else {
-            this.setState({ Form: Form });
+            this.setState({ FormController: FormController });
         }
     }
 
     handleCountry = (event, data) => {
-        const { SearchResults, Form } = this.state;
+        const { SearchResults, FormController } = this.state;
         const allCountry = Country.getAllCountries();
         const countryList = allCountry.filter((country) => country.name.toLowerCase().includes(data.value.toLowerCase()));
         SearchResults[data.uniqueidentifier + 'Result'] = countryList.map(country => ({ title: country.name, code: country.isoCode }));
-        Form[data.uniqueidentifier] = data.value;
-        this.setState({ SearchResults, Form });
+        FormController[data.uniqueidentifier] = data.value;
+        this.setState({ SearchResults, FormController });
     }
 
     handleState = (event, data) => {
-        const { SearchResults, Form } = this.state;
-        const allState = State.getStatesOfCountry(Form[data.uniqueidentifier.replace('State', 'Country')].code);
+        const { SearchResults, FormController } = this.state;
+        const allState = State.getStatesOfCountry(FormController[data.uniqueidentifier.replace('State', 'Country')].code);
         const stateList = allState.filter((state) => state.name.toLowerCase().includes(data.value.toLowerCase()));
         SearchResults[data.uniqueidentifier + 'Result'] = stateList.map(state => ({ title: state.name, code: state.isoCode }));
-        Form[data.uniqueidentifier] = data.value;
+        FormController[data.uniqueidentifier] = data.value;
         this.setState({ SearchResults });
     }
 
     handleCity = (event, data) => {
-        const { SearchResults, Form } = this.state;
-        const allCity = City.getCitiesOfState(Form[data.uniqueidentifier.replace('City', 'Country')].code, Form[data.uniqueidentifier.replace('City', 'State')].code);
+        const { SearchResults, FormController } = this.state;
+        const allCity = City.getCitiesOfState(FormController[data.uniqueidentifier.replace('City', 'Country')].code, FormController[data.uniqueidentifier.replace('City', 'State')].code);
         const cityList = allCity.filter((city) => city.name.toLowerCase().includes(data.value.toLowerCase()));
         SearchResults[data.uniqueidentifier + 'Result'] = cityList.map(city => ({ title: city.name }));
-        Form[data.uniqueidentifier] = data.value;
+        FormController[data.uniqueidentifier] = data.value;
         this.setState({ SearchResults });
     }
 
     handleForm = (event, data) => {
-        const { Form } = this.state;
-        Form[data.uniqueidentifier] = data.value;
-        this.setState({ Form });
+        const { FormController } = this.state;
+        FormController[data.uniqueidentifier] = data.value;
+        this.setState({ FormController });
     }
 
     handleSelectResult = (event, data) => {
-        const { Form, FormDisableController } = this.state;
-        Form[data.uniqueidentifier] = data.result;
+        const { FormController, FormDisableController } = this.state;
+        FormController[data.uniqueidentifier] = data.result;
 
         if (data.uniqueidentifier.includes('Country')) {
             FormDisableController[data.uniqueidentifier.replace('Country', 'State')] = false;
@@ -215,28 +222,70 @@ class Checkout extends React.Component {
             FormDisableController[data.uniqueidentifier.replace('State', 'City')] = false;
         }
 
-        this.setState({ Form, FormDisableController });
+        this.setState({ FormController, FormDisableController });
+    }
+
+    handlePaymentMethod = (event, data) => {
+        let { SelectedPaymentMethod } = this.state;
+        SelectedPaymentMethod = data.uniqueidentifier;
+        this.setState({ SelectedPaymentMethod });
+    }
+
+    handleCreditCard = (event, data) => {
+        const { FormController } = this.state;
+        
+        if (data.value === "") {
+            FormController[data.uniqueidentifier] = "";
+            this.setState({ FormController });
+        }
+
+        var cardNumber = data.value.replace(/ /g, "");
+        if (isNaN(parseInt(cardNumber))) { return; }
+
+        let { CardType } = this.setState;
+        const CardMap = {
+            [creditCardType.types.VISA]: "cc visa",
+            [creditCardType.types.MASTERCARD]: "cc mastercard",
+            [creditCardType.types.AMERICAN_EXPRESS]: "cc mastercard",
+            [creditCardType.types.DINERS_CLUB]: "cc diners club",
+            [creditCardType.types.DISCOVER]: "cc discover",
+            [creditCardType.types.JCB]: "cc jcb"
+        }
+
+        var card = creditCardType(cardNumber);
+        if (card) {
+            CardType = (CardMap[card[0].type]) ? CardMap[card[0].type] : "credit card";
+            card[0].gaps.forEach((gap, index) => {
+                if (cardNumber.length > gap) {
+                    cardNumber = [cardNumber.slice(0, gap + index), " ", cardNumber.slice(gap + index)].join('');
+                }
+            });
+
+
+            FormController[data.uniqueidentifier] = cardNumber;
+        }
+        this.setState({ FormController, CardType });
     }
 
     handleSameAsShipping = (event, data) => {
-        const { Form, FormDisableController } = this.state;
+        const { FormController, FormDisableController } = this.state;
         if (!data.checked) {
-            Form.BillingStreet = '';
-            Form.BillingCountry = {
+            FormController.BillingStreet = '';
+            FormController.BillingCountry = {
                 title: '',
                 code: ''
             };
-            Form.BillingCity = {
+            FormController.BillingCity = {
                 title: '',
                 code: ''
             };
-            Form.BillingState = {
+            FormController.BillingState = {
                 title: '',
                 code: ''
             };
-            Form.BillingZip = '';
-            Form.BillingHouse = '';
-            Form.BillingFlat = '';
+            FormController.BillingZip = '';
+            FormController.BillingHouse = '';
+            FormController.BillingFlat = '';
 
             FormDisableController.BillingStreet = false;
             FormDisableController.BillingCountry = false;
@@ -244,13 +293,13 @@ class Checkout extends React.Component {
             FormDisableController.BillingHouse = false;
             FormDisableController.BillingFlat = false;
         } else {
-            Form.BillingStreet = Form.ShippingStreet;
-            Form.BillingCountry = Form.ShippingCountry;
-            Form.BillingCity = Form.ShippingCity;
-            Form.BillingState = Form.ShippingState;
-            Form.BillingZip = Form.ShippingZip;
-            Form.BillingHouse = Form.ShippingHouse;
-            Form.BillingFlat = Form.ShippingFlat;
+            FormController.BillingStreet = FormController.ShippingStreet;
+            FormController.BillingCountry = FormController.ShippingCountry;
+            FormController.BillingCity = FormController.ShippingCity;
+            FormController.BillingState = FormController.ShippingState;
+            FormController.BillingZip = FormController.ShippingZip;
+            FormController.BillingHouse = FormController.ShippingHouse;
+            FormController.BillingFlat = FormController.ShippingFlat;
 
             FormDisableController.BillingStreet = true;
             FormDisableController.BillingCountry = true;
@@ -261,28 +310,28 @@ class Checkout extends React.Component {
             FormDisableController.BillingFlat = true;
         }
 
-        Form.BillingSameAs = data.checked;
-        this.setState({ Form, FormDisableController });
+        FormController.BillingSameAs = data.checked;
+        this.setState({ FormController, FormDisableController });
     }
 
     generateForm = () => {
-        const { StepperController, CurrentPhoneCountry, SearchResults, Form, FormDisableController } = this.state;
+        const { StepperController, CurrentPhoneCountry, SearchResults, FormController, FormDisableController, SelectedPaymentMethod, CardType } = this.state;
 
         if (StepperController.Details) {
             return (
                 <div>
                     <Input style={{ marginBottom: '10px' }} fluid icon="user" placeholder='First Name'
-                        uniqueidentifier="FirstName" value={Form.FirstName} onChange={this.handleForm} />
+                        uniqueidentifier="FirstName" value={FormController.FirstName} onChange={this.handleForm} />
 
                     <Input style={{ marginBottom: '10px' }} fluid icon="user" placeholder='Last Name'
-                        uniqueidentifier="LastName" value={Form.LastName} onChange={this.handleForm} />
+                        uniqueidentifier="LastName" value={FormController.LastName} onChange={this.handleForm} />
 
                     <Input type='email' style={{ marginBottom: '10px' }} fluid icon="mail" placeholder='Email'
-                        uniqueidentifier="Email" value={Form.Email} onChange={this.handleForm} />
+                        uniqueidentifier="Email" value={FormController.Email} onChange={this.handleForm} />
 
                     <Input className='flag-icons' onChange={this.handlePhonenumber} labelPosition='left'
                         label={{ content: <Image src={`country-flag/${CurrentPhoneCountry}-flag.jpg`} /> }}
-                        fluid icon="phone" placeholder='Mobile No.' uniqueidentifier="Mobile" value={Form.Mobile} />
+                        fluid icon="phone" placeholder='Mobile No.' uniqueidentifier="Mobile" value={FormController.Mobile} />
                 </div>
             )
         }
@@ -291,28 +340,28 @@ class Checkout extends React.Component {
             return (
                 <div>
                     <Input style={{ marginBottom: '10px' }} fluid icon="location arrow" placeholder='Street'
-                        uniqueidentifier="ShippingStreet" value={Form.ShippingStreet} onChange={this.handleForm} />
+                        uniqueidentifier="ShippingStreet" value={FormController.ShippingStreet} onChange={this.handleForm} />
 
                     <Search className='search-input' fluid style={{ marginBottom: '10px' }} results={SearchResults.ShippingCountryResult}
                         icon="location arrow" uniqueidentifier="ShippingCountry" placeholder="Country" onSearchChange={this.handleCountry}
-                        onResultSelect={this.handleSelectResult} value={Form.ShippingCountry.title} />
+                        onResultSelect={this.handleSelectResult} value={FormController.ShippingCountry.title} />
 
                     <Search className='search-input' fluid style={{ marginBottom: '10px' }} results={SearchResults.ShippingStateResult}
                         icon="location arrow" uniqueidentifier="ShippingState" placeholder="State" onSearchChange={this.handleState}
-                        onResultSelect={this.handleSelectResult} value={Form.ShippingState.title} disabled={FormDisableController.ShippingState} />
+                        onResultSelect={this.handleSelectResult} value={FormController.ShippingState.title} disabled={FormDisableController.ShippingState} />
 
                     <Search className='search-input' fluid style={{ marginBottom: '10px' }} results={SearchResults.ShippingCityResult}
                         icon="location arrow" uniqueidentifier="ShippingCity" placeholder="City" onSearchChange={this.handleCity}
-                        onResultSelect={this.handleSelectResult} value={Form.ShippingCity.title} disabled={FormDisableController.ShippingCity} />
+                        onResultSelect={this.handleSelectResult} value={FormController.ShippingCity.title} disabled={FormDisableController.ShippingCity} />
 
                     <Input style={{ marginBottom: '10px' }} fluid icon="location arrow" placeholder='Zip'
-                        uniqueidentifier="ShippingZip" value={Form.ShippingZip} onChange={this.handleForm} />
+                        uniqueidentifier="ShippingZip" value={FormController.ShippingZip} onChange={this.handleForm} />
 
                     <Input style={{ marginBottom: '10px' }} fluid icon="home" placeholder='House name (Optional)'
-                        uniqueidentifier="ShippingHouse" value={Form.ShippingHouse} onChange={this.handleForm} />
+                        uniqueidentifier="ShippingHouse" value={FormController.ShippingHouse} onChange={this.handleForm} />
 
                     <Input style={{ marginBottom: '10px' }} fluid icon="home" placeholder='Flat no. (Optional)'
-                        uniqueidentifier="ShippingFlat" value={Form.ShippingFlat} onChange={this.handleForm} />
+                        uniqueidentifier="ShippingFlat" value={FormController.ShippingFlat} onChange={this.handleForm} />
                 </div>
             )
         }
@@ -321,40 +370,110 @@ class Checkout extends React.Component {
             return (
                 <div>
                     <Checkbox style={{ marginBottom: '10px' }} label='Same as shipping' onChange={this.handleSameAsShipping}
-                        checked={Form.BillingSameAs} />
+                        checked={FormController.BillingSameAs} />
 
                     <Input style={{ marginBottom: '10px' }} fluid icon="location arrow" placeholder='Street'
-                        uniqueidentifier="BillingStreet" value={Form.BillingStreet} onChange={this.handleForm}
+                        uniqueidentifier="BillingStreet" value={FormController.BillingStreet} onChange={this.handleForm}
                         disabled={FormDisableController.BillingStreet} />
 
                     <Search className='search-input' fluid style={{ marginBottom: '10px' }} results={SearchResults.BillingCountryResult}
                         icon="location arrow" uniqueidentifier="BillingCountry" placeholder="Country" onSearchChange={this.handleCountry}
-                        onResultSelect={this.handleSelectResult} value={Form.BillingCountry.title}
+                        onResultSelect={this.handleSelectResult} value={FormController.BillingCountry.title}
                         disabled={FormDisableController.BillingCountry} />
 
                     <Search className='search-input' fluid style={{ marginBottom: '10px' }} results={SearchResults.BillingStateResult}
                         icon="location arrow" uniqueidentifier="BillingState" placeholder="State" onSearchChange={this.handleState}
-                        onResultSelect={this.handleSelectResult} value={Form.BillingState.title}
+                        onResultSelect={this.handleSelectResult} value={FormController.BillingState.title}
                         disabled={FormDisableController.BillingState} />
 
                     <Search className='search-input' fluid style={{ marginBottom: '10px' }} results={SearchResults.BillingCityResult}
                         icon="location arrow" uniqueidentifier="BillingCity" placeholder="City" onSearchChange={this.handleCity}
-                        onResultSelect={this.handleSelectResult} value={Form.BillingCity.title}
+                        onResultSelect={this.handleSelectResult} value={FormController.BillingCity.title}
                         disabled={FormDisableController.BillingCity} />
 
                     <Input style={{ marginBottom: '10px' }} fluid icon="location arrow" placeholder='Zip'
-                        uniqueidentifier="BillingZip" value={Form.BillingZip} onChange={this.handleForm}
+                        uniqueidentifier="BillingZip" value={FormController.BillingZip} onChange={this.handleForm}
                         disabled={FormDisableController.BillingZip} />
 
                     <Input style={{ marginBottom: '10px' }} fluid icon="home" placeholder='House name (Optional)'
-                        uniqueidentifier="BillingHouse" value={Form.BillingHouse} onChange={this.handleForm}
+                        uniqueidentifier="BillingHouse" value={FormController.BillingHouse} onChange={this.handleForm}
                         disabled={FormDisableController.BillingHouse} />
 
                     <Input style={{ marginBottom: '10px' }} fluid icon="home" placeholder='Flat no. (Optional)'
-                        uniqueidentifier="BillingFlat" value={Form.BillingFlat} onChange={this.handleForm}
+                        uniqueidentifier="BillingFlat" value={FormController.BillingFlat} onChange={this.handleForm}
                         disabled={FormDisableController.BillingFlat} />
 
-                    <p>Payment Methods</p>
+                    <p style={{ marginTop: '20px', fontSize: '20px', fontWeight: 'bold' }}>Payment Methods</p>
+                    <Divider />
+
+                    <Grid>
+                        <Grid.Row>
+                            <Grid.Column>
+                                <Button uniqueidentifier="Cash" toggle icon active={SelectedPaymentMethod === 'Cash'}
+                                    onClick={this.handlePaymentMethod}>
+                                    <Icon color={SelectedPaymentMethod === 'Cash' ? 'white' : 'black'} name='money bill alternate outline' />
+                                </Button>
+                            </Grid.Column>
+
+                            <Grid.Column>
+                                <Button uniqueidentifier="Card" toggle icon active={SelectedPaymentMethod === 'Card'}
+                                    onClick={this.handlePaymentMethod}>
+                                    <Icon color={SelectedPaymentMethod === 'Card' ? 'white' : 'black'} name='credit card' />
+                                </Button>
+                            </Grid.Column>
+                        </Grid.Row>
+                    </Grid>
+
+                    {
+                        (SelectedPaymentMethod === 'Cash') ?
+                            <Grid>
+                                <Grid.Row>
+                                    <Grid.Column>
+                                        <p style={{ fontWeight: 'bold', marginBottom: '0px' }}>PAY BY CASH</p>
+                                        <p style={{ fontSize: '12px', color: '#a5a7a8' }}>Consider payment upon ordering for contactless delivery. You can't pay by a card to the rider upon delivery.</p>
+                                    </Grid.Column>
+                                </Grid.Row>
+                            </Grid> : ''
+                    }
+
+                    {
+                        (SelectedPaymentMethod === 'Card') ?
+                            <Grid columns={1}>
+                                <Grid.Row>
+                                    <Grid.Column>
+                                        <Input style={{ marginBottom: '10px' }} fluid icon="user" placeholder='Cardholders Name'
+                                            uniqueidentifier="CardHolderName" value={FormController.CardHolderName} onChange={this.handleForm}
+                                        />
+                                    </Grid.Column>
+                                </Grid.Row>
+
+                                <Grid.Row>
+                                    <Grid.Column>
+                                        <Grid columns={3}>
+                                            <Grid.Row>
+                                                <Grid.Column width={10}>
+                                                    <Input style={{ marginBottom: '10px' }} fluid icon={CardType} placeholder='Card Number'
+                                                        uniqueidentifier="CardNumber" value={FormController.CardNumber} onChange={this.handleCreditCard}
+                                                    />
+                                                </Grid.Column>
+
+                                                <Grid.Column width={3}>
+                                                    <Input style={{ marginBottom: '10px' }} fluid placeholder='Expiry Date'
+                                                        uniqueidentifier="CardExpiryDate" value={FormController.CardExpiryDate} onChange={this.handleForm}
+                                                    />
+                                                </Grid.Column>
+
+                                                <Grid.Column width={3}>
+                                                    <Input style={{ marginBottom: '10px' }} fluid placeholder='CCV'
+                                                        uniqueidentifier="CardCCV" value={FormController.CardCCV} onChange={this.handleForm}
+                                                    />
+                                                </Grid.Column>
+                                            </Grid.Row>
+                                        </Grid>
+                                    </Grid.Column>
+                                </Grid.Row>
+                            </Grid> : ''
+                    }
                 </div>
             )
         }
