@@ -11,6 +11,8 @@ import creditCardType from "credit-card-type";
 import PersonalDetails from './PersonalDetails';
 import ShippingDetails from './ShippingDetails';
 import BillingDetails from './BillingDetails';
+import ConfirmDetails from './ConfirmDetails';
+import OrderOverview from './OrderOverview';
 
 class Checkout extends React.Component {
     state = {
@@ -368,6 +370,10 @@ class Checkout extends React.Component {
                 handleSelectResult={this.handleSelectResult} handleCountry={this.handleCountry} handleState={this.handleState} handleCity={this.handleCity}
                 handlePaymentMethod={this.handlePaymentMethod} handleCreditCard={this.handleCreditCard} handleExpiry={this.handleExpiry} />
         }
+
+        if (StepperController.Confirm) {
+            return <ConfirmDetails FormController={FormController} SelectedPaymentMethod={SelectedPaymentMethod} />
+        }
     }
 
     render() {
@@ -440,9 +446,7 @@ class Checkout extends React.Component {
                                             }
                                         </Grid.Column>
                                         <Grid.Column width={6}>
-                                            <Segment placeholder>
-
-                                            </Segment>
+                                            <OrderOverview />
                                         </Grid.Column>
                                     </Grid.Row>
 
@@ -462,7 +466,7 @@ class Checkout extends React.Component {
                                                         {(StepperController.Details) ? 'Next' : ''}
                                                         {(StepperController.Shipping) ? 'Confirm' : ''}
                                                         {(StepperController.Billing) ? 'Finish' : ''}
-                                                        {(StepperController.Confirm) ? 'Proceed And Pay' : ''}
+                                                        {(StepperController.Confirm) ? 'Checkout' : ''}
                                                     </Button> : ''
                                             }
                                         </Grid.Column>

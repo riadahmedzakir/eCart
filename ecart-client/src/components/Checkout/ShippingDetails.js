@@ -1,12 +1,8 @@
-import './../../App.css';
-
 import React from "react";
 import { Input, Search } from 'semantic-ui-react';
 
 
 class ShippingDetails extends React.Component {
-    state = {}
-
     render() {
         const { FormController, FormDisableController, SearchResults, handleForm, handleSelectResult, handleCountry, handleState, handleCity } = this.props;
         return (

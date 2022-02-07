@@ -1,12 +1,8 @@
-import './../../App.css';
-
 import React from "react";
 import { Button, Checkbox, Divider, Grid, Icon, Input, Search } from 'semantic-ui-react';
 
 
 class BillingDetails extends React.Component {
-    state = {}
-
     render() {
         const { SearchResults, FormController, FormDisableController, SelectedPaymentMethod, CardType,
             handleSameAsShipping, handleForm, handleSelectResult, handleCountry, handleState, handleCity, handlePaymentMethod, handleCreditCard, handleExpiry } = this.props;

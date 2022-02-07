@@ -1,12 +1,8 @@
-import './../../App.css';
-
 import React from "react";
 import { Image, Input } from 'semantic-ui-react';
 
 
 class PersonalDetails extends React.Component {
-    state = {}
-
     render() {
         const { FormController, CurrentPhoneCountry, handleForm, handlePhonenumber } = this.props;
         return (
